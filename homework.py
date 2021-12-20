@@ -95,11 +95,7 @@ def check_response(response):
     """
     try:
         list_works = response.get('homeworks')
-        if list_works.status_code != 200:
-            message = f'Ошибка {list_works.status_code}'
-            logging.error(message)
-            bot = telegram.Bot(token=TELEGRAM_TOKEN)
-            return message
+        print(list_works.status_code)
     except KeyError:
         message = 'Ошибка словаря по ключу homeworks'
         logger.error(message)
