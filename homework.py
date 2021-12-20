@@ -123,7 +123,7 @@ def parse_status(homework):
     Telegram строку, содержащую один из вердиктов словаря HOMEWORK_STATUSES.
     """
     if 'homework_name' not in homework:
-        raise Exception('Отсутствует ключ "homework_name" в ответе API')
+        raise KeyError('Отсутствует ключ "homework_name" в ответе API')
     if 'status' not in homework:
         raise Exception('Отсутствует ключ "status" в ответе API')
     homework_name = homework['homework_name']
