@@ -5,7 +5,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 from dotenv import load_dotenv
 import telegram
-
+from http import HTTPStatus
 
 load_dotenv()
 logging.basicConfig(
@@ -70,16 +70,18 @@ def get_api_answer(current_timestamp):
                                          headers=HEADERS,
                                          params=params
                                          )
-        if homework_statuses.status_code != 200:
-            message = f'Ошибка {homework_statuses.status_code}'
-            logging.error(message)
-            bot = telegram.Bot(token=TELEGRAM_TOKEN)
-            return message
     except Exception as error:
         logging.error(f'Ошибка при запросе к основному API: {error}')
         bot = telegram.Bot(token=TELEGRAM_TOKEN)
         message = f'Ошибка при запросе к основному API: {error}'
         send_message(bot, message)
+    if homework_statuses.status_code != HTTPStatus.OK:
+        status_code = homework_statuses.status_code
+        message = f'Ошибка {status_code}'
+        logging.error(message)
+        bot = telegram.Bot(token=TELEGRAM_TOKEN)
+        send_message(bot, message)
+        raise
     response = homework_statuses.json()
     print(response)
     return response
@@ -93,6 +95,8 @@ def check_response(response):
     список домашних работ (он может бытьnи пустым), доступный в ответе
     API по ключу 'homeworks'
     """
+    if type(response) is not dict:
+        raise TypeError('Ответ API отличен от словаря')
     try:
         list_works = response.get('homeworks')
     except KeyError:
@@ -115,12 +119,13 @@ def check_response(response):
 def parse_status(homework):
     """Извлекает из информации о конкретной домашней работе статус этой работы.
     В качестве параметра функция получает всего один элемент из списка домашних
-    работ. В случае успеха, функция возвращаетnподготовленную для отправки в
+    работ. В случае успеха, функция возвращает подготовленную для отправки в
     Telegram строку, содержащую один из вердиктов словаря HOMEWORK_STATUSES.
     """
-    for key in ['homework_name', 'status']:
-        if key not in homework.keys():
-            raise Exception(f'Отсутствует ключ в ответе API: {key}')
+    if 'homework_name' not in homework:
+        raise Exception('Отсутствует ключ "homework_name" в ответе API')
+    if 'status' not in homework:
+        raise Exception('Отсутствует ключ "status" в ответе API')  
     try:
         homework_name = homework['homework_name']
         homework_status = homework['status']
