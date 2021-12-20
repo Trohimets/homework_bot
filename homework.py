@@ -17,7 +17,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-handler = RotatingFileHandler('my_logger.log', encoding='UTF-8', maxBytes=50000000, backupCount=5)
+handler = RotatingFileHandler('my_logger.log', 
+                              encoding='UTF-8',
+                              maxBytes=50000000,
+                              backupCount=5
+                              )
 logger.addHandler(handler)
 formatter = logging.Formatter(
     '%(asctime)s, %(levelname)s, %(message)s, %(funcName)s, %(lineno)s'
@@ -43,7 +47,8 @@ HOMEWORK_STATUSES = {
 def send_message(bot, message):
     """Отправляет сообщение в Telegram чат, определяемый переменной окружения
     TELEGRAM_CHAT_ID. Принимает на вход два параметра: экземпляр класса Bot и
-    строку с текстом сообщения."""
+    строку с текстом сообщения.
+    """
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logger.info('Удачная отправка сообщения в чат {TELEGRAM_CHAT_ID}: {message}')
@@ -53,7 +58,8 @@ def send_message(bot, message):
 def get_api_answer(current_timestamp):
     """Делает запрос к единственному эндпоинту API-сервиса. В качестве параметра
     функция получает временную метку. В случае успешного запроса должна вернуть
-    ответ API, преобразовав его из формата JSON к типам данных Python."""
+    ответ API, преобразовав его из формата JSON к типам данных Python.
+    """
     timestamp = current_timestamp or int(time.time())
     params = {'from_date': timestamp}
     try:
@@ -72,7 +78,8 @@ def check_response(response):
     """Проверяет ответ API на корректность. В качестве параметра функция получает
     ответ API, приведенный к типам данных Python. Если ответ API соответствует
     ожиданиям, то функция должна вернуть список домашних работ (он может быть
-    и пустым), доступный в ответе API по ключу 'homeworks'"""
+    и пустым), доступный в ответе API по ключу 'homeworks'
+    """
     try:
         list_works = response.get('homeworks')
     except KeyError:
@@ -97,7 +104,8 @@ def parse_status(homework):
     этой работы. В качестве параметра функция получает только один
     элемент из списка домашних работ. В случае успеха, функция возвращает
     подготовленную для отправки в Telegram строку, содержащую один из вердиктов
-    словаря HOMEWORK_STATUSES"""
+    словаря HOMEWORK_STATUSES.
+    """
     try:
         homework_name = homework['homework_name']
         homework_status = homework['status']
@@ -114,7 +122,8 @@ def parse_status(homework):
 def check_tokens():
     """Проверяет доступность переменных окружения, которые необходимы для работы
     программы. Если отсутствует хотя бы одна переменная окружения — функция
-    должна вернуть False, иначе — True."""
+    должна вернуть False, иначе — True.
+    """
     if PRACTICUM_TOKEN and TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
         return True
     else:
@@ -123,7 +132,8 @@ def check_tokens():
 
 
 def main():
-    """Основная логика работы бота."""
+    """Основная логика работы бота.
+    """
     current_timestamp = int(time.time())
     STATUS = ''
     ERROR_CACHE_MESSAGE = ''
