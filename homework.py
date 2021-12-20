@@ -126,19 +126,12 @@ def parse_status(homework):
         raise Exception('Отсутствует ключ "homework_name" в ответе API')
     if 'status' not in homework:
         raise Exception('Отсутствует ключ "status" в ответе API')
-    try:
-        homework_name = homework['homework_name']
-        homework_status = homework['status']
-        if homework_status not in HOMEWORK_STATUSES.keys():
-            raise Exception(f'Неизвестный статус работы: {homework_status}')
-        verdict = HOMEWORK_STATUSES[homework_status]
-        return f'Изменился статус проверки работы "{homework_name}". {verdict}'
-    except Exception as error:
-        message = f'Невозможно проверить статус: отсутствуют работы: {error}'
-        logger.error(message)
-        bot = telegram.Bot(token=TELEGRAM_TOKEN)
-        send_message(bot, message)
-        return message
+    homework_name = homework['homework_name']
+    homework_status = homework['status']
+    if homework_status not in HOMEWORK_STATUSES.keys():
+        raise Exception(f'Неизвестный статус работы: {homework_status}')
+    verdict = HOMEWORK_STATUSES[homework_status]
+    return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
 
 def check_tokens():
