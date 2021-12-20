@@ -125,7 +125,7 @@ def parse_status(homework):
     if 'homework_name' not in homework:
         raise Exception('Отсутствует ключ "homework_name" в ответе API')
     if 'status' not in homework:
-        raise Exception('Отсутствует ключ "status" в ответе API')  
+        raise Exception('Отсутствует ключ "status" в ответе API')
     try:
         homework_name = homework['homework_name']
         homework_status = homework['status']
