@@ -95,7 +95,6 @@ def check_response(response):
     """
     try:
         list_works = response.get('homeworks')
-        print(list_works.status_code)
     except KeyError:
         message = 'Ошибка словаря по ключу homeworks'
         logger.error(message)
