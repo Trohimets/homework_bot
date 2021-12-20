@@ -70,7 +70,7 @@ def get_api_answer(current_timestamp):
                                          headers=HEADERS,
                                          params=params
                                          )
-        if homework_statuses.status_code !=200:
+        if homework_statuses.status_code != 200:
             message = f'Ошибка {homework_statuses.status_code}'
             logging.error(message)
             bot = telegram.Bot(token=TELEGRAM_TOKEN)
@@ -95,7 +95,7 @@ def check_response(response):
     """
     try:
         list_works = response.get('homeworks')
-        if list_works.status_code !=200:
+        if list_works.status_code != 200:
             message = f'Ошибка {list_works.status_code}'
             logging.error(message)
             bot = telegram.Bot(token=TELEGRAM_TOKEN)
@@ -130,7 +130,7 @@ def parse_status(homework):
         homework_name = homework['homework_name']
         homework_status = homework['status']
         if homework_status not in HOMEWORK_STATUSES.keys():
-            raise Exception(f'Недокументированный статус работы: {homework_status}')
+            raise Exception(f'Неизвестный статус работы: {homework_status}')
         verdict = HOMEWORK_STATUSES[homework_status]
         return f'Изменился статус проверки работы "{homework_name}". {verdict}'
     except Exception as error:
