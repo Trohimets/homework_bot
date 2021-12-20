@@ -45,20 +45,20 @@ HOMEWORK_STATUSES = {
 
 
 def send_message(bot, message):
-    """Отправляет сообщение в Telegram чат, определяемый переменной окружения TELEGRAM_CHAT_ID.
+    """Отправляет сообщение в Telegram чат.
+    Чат задан переменной окружения TELEGRAM_CHAT_ID.
     Принимает на вход два параметра: экземпляр класса Bot и
     строку с текстом сообщения.
     """
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
-        t_message = 'Удачная отправка сообщения в чат {TELEGRAM_CHAT_ID}: {message}'
-        logger.info(t_message)
+        logger.info('Сообщение в чат {TELEGRAM_CHAT_ID}: {message}')
     except Exception:
         logger.error('Ошибка отправки сообщения в телеграм')
 
 
 def get_api_answer(current_timestamp):
-    """Делает запрос к единственному эндпоинту API-сервиса. 
+    """Делает запрос к единственному эндпоинту API-сервиса.
     В качестве параметра функция получает временную метку.
     В случае успешного запроса должна вернуть ответ API,
     преобразовав его из формата JSON к типам данных Python.
@@ -82,7 +82,8 @@ def get_api_answer(current_timestamp):
 
 def check_response(response):
     """Проверяет ответ API на корректность.
-    В качестве параметра функция получаетnответ API, приведенный к типам данных Python.
+    В качестве параметра функция получает ответ API.
+    Ответ приведен к типам данных Python.
     Если ответ API соответствует ожиданиям, то функция должна вернуть
     список домашних работ (он может бытьnи пустым), доступный в ответе
     API по ключу 'homeworks'
@@ -108,7 +109,7 @@ def check_response(response):
 
 def parse_status(homework):
     """Извлекает из информации о конкретной домашней работе статус этой работы.
-    В качестве параметра функция получает только один элемент из списка домашних
+    В качестве параметра функция получает всего один элемент из списка домашних
     работ. В случае успеха, функция возвращаетnподготовленную для отправки в
     Telegram строку, содержащую один из вердиктов словаря HOMEWORK_STATUSES.
     """
@@ -126,7 +127,7 @@ def parse_status(homework):
 
 
 def check_tokens():
-    """Проверяет доступность переменных окружения, которые необходимы для работыbпрограммы.
+    """Проверяет доступность переменных окружения, необходимых для работы.
     Если отсутствует хотя бы одна переменная окружения — функция
     должна вернуть False, иначе — True.
     """
@@ -142,7 +143,9 @@ def main():
     current_timestamp = int(time.time())
     STATUS = ''
     ERROR_CACHE_MESSAGE = ''
-    while check_tokens() == True:
+    if not check_tokens():
+        raise 'Отсутствуют одна или несколько переменных окружения'
+    while True:
         try:
             response = get_api_answer(current_timestamp)
             message = parse_status(check_response(response))
