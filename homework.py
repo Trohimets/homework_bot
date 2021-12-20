@@ -70,6 +70,11 @@ def get_api_answer(current_timestamp):
                                          headers=HEADERS,
                                          params=params
                                          )
+        if homework_statuses.status_code !=200:
+            message = f'Ошибка {homework_statuses.status_code}'
+            logging.error(message)
+            bot = telegram.Bot(token=TELEGRAM_TOKEN)
+            return message
     except Exception as error:
         logging.error(f'Ошибка при запросе к основному API: {error}')
         bot = telegram.Bot(token=TELEGRAM_TOKEN)
@@ -90,6 +95,11 @@ def check_response(response):
     """
     try:
         list_works = response.get('homeworks')
+        if list_works.status_code !=200:
+            message = f'Ошибка {list_works.status_code}'
+            logging.error(message)
+            bot = telegram.Bot(token=TELEGRAM_TOKEN)
+            return message
     except KeyError:
         message = 'Ошибка словаря по ключу homeworks'
         logger.error(message)
@@ -113,9 +123,14 @@ def parse_status(homework):
     работ. В случае успеха, функция возвращаетnподготовленную для отправки в
     Telegram строку, содержащую один из вердиктов словаря HOMEWORK_STATUSES.
     """
+    for key in ['homework_name', 'status']:
+        if key not in homework.keys():
+            raise Exception(f'Отсутствует ключ в ответе API: {key}')
     try:
         homework_name = homework['homework_name']
         homework_status = homework['status']
+        if homework_status not in HOMEWORK_STATUSES.keys():
+            raise Exception(f'Недокументированный статус работы: {homework_status}')
         verdict = HOMEWORK_STATUSES[homework_status]
         return f'Изменился статус проверки работы "{homework_name}". {verdict}'
     except Exception as error:
