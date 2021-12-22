@@ -32,7 +32,7 @@ PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
-RETRY_TIME = 600
+RETRY_TIME = 3
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
@@ -80,7 +80,7 @@ def get_api_answer(current_timestamp):
         raise Exception(message)
     try:
         response = homework_statuses.json()
-    except ValueError:
+    except ValueError: 
         logger.error('Ошибка парсинга ответа из формата json')
         raise ValueError('Ошибка парсинга ответа из формата json')
     print(response)
@@ -142,7 +142,7 @@ def check_tokens():
 def main():
     """Основная логика работы бота."""
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    current_timestamp = int(time.time())
+    current_timestamp = 1639945358 #int(time.time())
     STATUS = ''
     ERROR_CACHE_MESSAGE = ''
     if not check_tokens():
@@ -155,7 +155,7 @@ def main():
             if message != STATUS:
                 send_message(bot, message)
                 STATUS = message
-            current_timestamp = response.get('current_date')
+            current_timestamp = 1639945358 #response.get('current_date')
             time.sleep(RETRY_TIME)
         except Exception as error:
             logger.error(error)
