@@ -79,7 +79,7 @@ def get_api_answer(current_timestamp):
         raise Exception(f'Ошибка {status_code}')
     try:
         response = homework_statuses.json()
-    except ValueError: 
+    except ValueError:
         logger.error('Ошибка парсинга ответа из формата json')
         raise ValueError('Ошибка парсинга ответа из формата json')
     print(response)
@@ -139,7 +139,7 @@ def check_tokens():
 def main():
     """Основная логика работы бота."""
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    current_timestamp = 1639945358 #int(time.time())
+    current_timestamp = int(time.time())
     STATUS = ''
     ERROR_CACHE_MESSAGE = ''
     if not check_tokens():
@@ -152,7 +152,7 @@ def main():
             if message != STATUS:
                 send_message(bot, message)
                 STATUS = message
-            current_timestamp = 1639945358 #response.get('current_date')
+            current_timestamp = response.get('current_date')
             time.sleep(RETRY_TIME)
         except Exception as error:
             logger.error(error)
