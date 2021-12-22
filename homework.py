@@ -32,7 +32,7 @@ PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
-RETRY_TIME = 600
+RETRY_TIME = 3
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
@@ -78,12 +78,10 @@ def get_api_answer(current_timestamp):
         logging.error(f'Ошибка {status_code}')
         raise Exception(f'Ошибка {status_code}')
     try:
-        response = homework_statuses.json()
+        return homework_statuses.json()
     except ValueError:
         logger.error('Ошибка парсинга ответа из формата json')
         raise ValueError('Ошибка парсинга ответа из формата json')
-    print(response)
-    return response
 
 
 def check_response(response):
@@ -98,6 +96,7 @@ def check_response(response):
         raise TypeError('Ответ API отличен от словаря')
     try:
         list_works = response['homeworks']
+        print(list_works)
     except KeyError:
         logger.error('Ошибка словаря по ключу homeworks')
         raise KeyError('Ошибка словаря по ключу homeworks')
@@ -121,10 +120,13 @@ def parse_status(homework):
         raise Exception('Отсутствует ключ "status" в ответе API')
     homework_name = homework['homework_name']
     homework_status = homework['status']
+    reviewer_comment = homework['reviewer_comment']
     if homework_status not in HOMEWORK_STATUSES:
         raise Exception(f'Неизвестный статус работы: {homework_status}')
     verdict = HOMEWORK_STATUSES[homework_status]
-    return f'Изменился статус проверки работы "{homework_name}". {verdict}'
+    message_1 = f'Изменился статус проверки работы "{homework_name}". '
+    message_2 = f'{verdict} Комментарий: "{reviewer_comment}"'
+    return (message_1 + message_2)
 
 
 def check_tokens():
@@ -139,7 +141,7 @@ def check_tokens():
 def main():
     """Основная логика работы бота."""
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    current_timestamp = int(time.time())
+    current_timestamp = int(time.time()) #1639584952
     STATUS = ''
     ERROR_CACHE_MESSAGE = ''
     if not check_tokens():
@@ -147,12 +149,13 @@ def main():
         raise Exception('Отсутствуют одна или несколько переменных окружения')
     while True:
         try:
+            print(current_timestamp, time.time())
             response = get_api_answer(current_timestamp)
+            current_timestamp = response.get('current_date')
             message = parse_status(check_response(response))
             if message != STATUS:
                 send_message(bot, message)
                 STATUS = message
-            current_timestamp = response.get('current_date')
             time.sleep(RETRY_TIME)
         except Exception as error:
             logger.error(error)
