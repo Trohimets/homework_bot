@@ -72,18 +72,17 @@ def get_api_answer(current_timestamp):
                                          )
     except Exception as error:
         logging.error(f'Ошибка при запросе к основному API: {error}')
-        bot = telegram.Bot(token=TELEGRAM_TOKEN)
-        message = f'Ошибка при запросе к основному API: {error}'
-        send_message(bot, message)
         raise Exception(f'Ошибка при запросе к основному API: {error}')
     if homework_statuses.status_code != HTTPStatus.OK:
         status_code = homework_statuses.status_code
         message = f'Ошибка {status_code}'
         logging.error(message)
-        bot = telegram.Bot(token=TELEGRAM_TOKEN)
-        send_message(bot, message)
-        raise Exception(f'Ошибка {status_code}')
-    response = homework_statuses.json()
+        raise Exception(message)
+    try:
+        response = homework_statuses.json()
+    except ValueError: 
+        logger.error('Ошибка парсинга ответа из формата json')
+        raise ValueError('Ошибка парсинга ответа из формата json')
     print(response)
     return response
 
@@ -99,21 +98,17 @@ def check_response(response):
     if type(response) is not dict:
         raise TypeError('Ответ API отличен от словаря')
     try:
-        list_works = response.get('homeworks')
+        list_works = response['homeworks']
     except KeyError:
         message = 'Ошибка словаря по ключу homeworks'
         logger.error(message)
-        bot = telegram.Bot(token=TELEGRAM_TOKEN)
-        send_message(bot, message)
-        return message
+        raise KeyError(message)
     try:
         homework = list_works[0]
     except IndexError:
         message = 'Нет домашних работ, отправленных на проверку'
         logger.error(message)
-        bot = telegram.Bot(token=TELEGRAM_TOKEN)
-        send_message(bot, message)
-        return message
+        raise message
     return homework
 
 
@@ -147,7 +142,7 @@ def check_tokens():
 def main():
     """Основная логика работы бота."""
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    current_timestamp = 1639945358 #int(time.time())
+    current_timestamp = int(time.time())
     STATUS = ''
     ERROR_CACHE_MESSAGE = ''
     if not check_tokens():
@@ -160,15 +155,13 @@ def main():
             if message != STATUS:
                 send_message(bot, message)
                 STATUS = message
-            current_timestamp = 1639945358 #response.get('current_date')
+            current_timestamp = response.get('current_date')
             time.sleep(RETRY_TIME)
         except Exception as error:
-            message = f'Сбой в работе программы: {error}'
-            logger.error(message)
-            bot = telegram.Bot(token=TELEGRAM_TOKEN)
-            if message != ERROR_CACHE_MESSAGE:
-                send_message(bot, message)
-                ERROR_CACHE_MESSAGE = message
+            logger.error(error)
+            if error != ERROR_CACHE_MESSAGE:
+                send_message(bot, error)
+                ERROR_CACHE_MESSAGE = error
         time.sleep(RETRY_TIME)
 
 
