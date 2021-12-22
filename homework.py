@@ -75,9 +75,8 @@ def get_api_answer(current_timestamp):
         raise Exception(f'Ошибка при запросе к основному API: {error}')
     if homework_statuses.status_code != HTTPStatus.OK:
         status_code = homework_statuses.status_code
-        message = f'Ошибка {status_code}'
-        logging.error(message)
-        raise Exception(message)
+        logging.error(f'Ошибка {status_code}')
+        raise Exception(f'Ошибка {status_code}')
     try:
         response = homework_statuses.json()
     except ValueError: 
@@ -100,15 +99,13 @@ def check_response(response):
     try:
         list_works = response['homeworks']
     except KeyError:
-        message = 'Ошибка словаря по ключу homeworks'
-        logger.error(message)
-        raise KeyError(message)
+        logger.error('Ошибка словаря по ключу homeworks')
+        raise KeyError('Ошибка словаря по ключу homeworks')
     try:
         homework = list_works[0]
     except IndexError:
-        message = 'Нет домашних работ, отправленных на проверку'
-        logger.error(message)
-        raise message
+        logger.error('Список домашних работ пуст')
+        raise IndexError('Список домашних работ пуст')
     return homework
 
 
@@ -147,7 +144,7 @@ def main():
     ERROR_CACHE_MESSAGE = ''
     if not check_tokens():
         logger.critical('Отсутствуют одна или несколько переменных окружения')
-        raise 'Отсутствуют одна или несколько переменных окружения'
+        raise Exception('Отсутствуют одна или несколько переменных окружения')
     while True:
         try:
             response = get_api_answer(current_timestamp)
@@ -159,9 +156,10 @@ def main():
             time.sleep(RETRY_TIME)
         except Exception as error:
             logger.error(error)
-            if error != ERROR_CACHE_MESSAGE:
-                send_message(bot, error)
-                ERROR_CACHE_MESSAGE = error
+            message_t = str(error)
+            if message_t != ERROR_CACHE_MESSAGE:
+                send_message(bot, message_t)
+                ERROR_CACHE_MESSAGE = message_t
         time.sleep(RETRY_TIME)
 
 
