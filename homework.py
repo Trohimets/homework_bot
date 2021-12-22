@@ -80,7 +80,7 @@ def get_api_answer(current_timestamp):
         raise Exception(message)
     try:
         response = homework_statuses.json()
-    except ValueError: 
+    except ValueError:
         logger.error('Ошибка парсинга ответа из формата json')
         raise ValueError('Ошибка парсинга ответа из формата json')
     print(response)
