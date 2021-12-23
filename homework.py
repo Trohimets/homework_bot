@@ -123,9 +123,7 @@ def parse_status(homework):
     if homework_status not in HOMEWORK_STATUSES:
         raise Exception(f'Неизвестный статус работы: {homework_status}')
     verdict = HOMEWORK_STATUSES[homework_status]
-    message_1 = f'Изменился статус проверки работы "{homework_name}". '
-    message_2 = f'{verdict} Комментарий: "{reviewer_comment}"'
-    return (message_1 + message_2)
+    return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
 
 def check_tokens():
