@@ -119,7 +119,6 @@ def parse_status(homework):
         raise Exception('Отсутствует ключ "status" в ответе API')
     homework_name = homework['homework_name']
     homework_status = homework['status']
-    reviewer_comment = homework['reviewer_comment']
     if homework_status not in HOMEWORK_STATUSES:
         raise Exception(f'Неизвестный статус работы: {homework_status}')
     verdict = HOMEWORK_STATUSES[homework_status]
